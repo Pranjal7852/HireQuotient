@@ -10,9 +10,17 @@ import {
   Paper,
   Checkbox,
   Button,
+  Box,
   Typography,
   TablePagination,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
+import CancelTwoToneIcon from "@mui/icons-material/CancelTwoTone";
+import SaveTwoToneIcon from "@mui/icons-material/SaveTwoTone";
+import DeleteSweepTwoToneIcon from "@mui/icons-material/DeleteSweepTwoTone";
+import DeleteOutlineTwoToneIcon from "@mui/icons-material/DeleteOutlineTwoTone";
+import "./AdminPanel.css";
 const AdminPanel = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -38,17 +46,13 @@ const AdminPanel = () => {
       });
   }, []);
   useEffect(() => {
-    // Check if data exists before filtering
     if (data.length > 0) {
-      // Filter data based on search term
       const filtered = data.filter((item) =>
         Object.values(item).some((val) =>
           val.toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
       setFilteredData(filtered);
-
-      // Reset current page when filtering
       setCurrentPage(0);
     }
   }, [data, searchTerm]);
@@ -64,7 +68,7 @@ const AdminPanel = () => {
   };
 
   const handleKeyPress = (e) => {
-    // Trigger search logic when Enter key is pressed
+    // helps trigger search logic when Enter key is pressed
     if (e.key === "Enter") {
       handleSearch();
     }
@@ -80,58 +84,82 @@ const AdminPanel = () => {
   };
 
   const handleCheckboxChange = (id) => {
-    const selectedIndex = selectedRows.indexOf(id);
-    let newSelected = [];
+    if (id === "all") {
+      // Toggle selection of all displayed rows
+      const allDisplayedRowsSelected =
+        selectedRows.length ===
+        filteredData.slice(
+          currentPage * rowsPerPage,
+          (currentPage + 1) * rowsPerPage
+        ).length;
 
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selectedRows, id);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selectedRows.slice(1));
-    } else if (selectedIndex === selectedRows.length - 1) {
-      newSelected = newSelected.concat(selectedRows.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selectedRows.slice(0, selectedIndex),
-        selectedRows.slice(selectedIndex + 1)
-      );
+      const newSelectedRows = allDisplayedRowsSelected
+        ? selectedRows.filter(
+            (selectedId) =>
+              !filteredData
+                .slice(
+                  currentPage * rowsPerPage,
+                  (currentPage + 1) * rowsPerPage
+                )
+                .some((row) => row.id === selectedId)
+          )
+        : [
+            ...selectedRows,
+            ...filteredData
+              .slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage)
+              .map((row) => row.id),
+          ];
+
+      setSelectedRows(newSelectedRows);
+    } else {
+      // Toggle selection of a specific row
+      const selectedIndex = selectedRows.indexOf(id);
+      let newSelected = [];
+
+      if (selectedIndex === -1) {
+        newSelected = newSelected.concat(selectedRows, id);
+      } else if (selectedIndex === 0) {
+        newSelected = newSelected.concat(selectedRows.slice(1));
+      } else if (selectedIndex === selectedRows.length - 1) {
+        newSelected = newSelected.concat(selectedRows.slice(0, -1));
+      } else if (selectedIndex > 0) {
+        newSelected = newSelected.concat(
+          selectedRows.slice(0, selectedIndex),
+          selectedRows.slice(selectedIndex + 1)
+        );
+      }
+
+      setSelectedRows(newSelected);
     }
-
-    setSelectedRows(newSelected);
+  };
+  const handleEdit = (id) => {
+    setEditMode(id);
   };
 
-  const handleEdit = (row) => {
-    // For simplicity, let's just create a copy of the row and update its name
-    const updatedRow = { ...row, name: "Updated Name" };
+  const handleSave = (id) => {
+    const updatedData = data.map((item) =>
+      item.id === id ? { ...item, name: item.name.toUpperCase() } : item
+    );
 
-    // Find the index of the row in the data array
-    const dataIndex = data.findIndex((item) => item.id === row.id);
-
-    // Create a copy of the data array
-    const newData = [...data];
-
-    // Replace the old row with the updated row
-    newData[dataIndex] = updatedRow;
-
-    // Update state with the new data
-    setData(newData);
-
-    // You can open a modal or perform other actions as needed
-    console.log("Edit:", updatedRow);
+    setData(updatedData);
+    setEditMode("");
   };
 
   const handleDelete = (id) => {
-    // For simplicity, let's filter out the row with the specified ID
     const newData = data.filter((item) => item.id !== id);
 
-    // Update state with the new data
     setData(newData);
-
-    // You can show a confirmation dialog and perform other actions as needed
-    console.log("Delete:", id);
+    setEditMode("");
   };
 
   const isSelected = (id) => selectedRows.indexOf(id) !== -1;
 
+  const handleDeleteSelected = () => {
+    const newData = data.filter((item) => !selectedRows.includes(item.id));
+
+    setData(newData);
+    setSelectedRows([]);
+  };
   const renderTableRows = () => {
     const startIdx = currentPage * rowsPerPage;
     const endIdx = startIdx + rowsPerPage;
@@ -144,6 +172,7 @@ const AdminPanel = () => {
         role="checkbox"
         selected={isSelected(row.id)}
         aria-checked={isSelected(row.id)}
+        className={isSelected(row.id) ? "selected-row" : ""}
       >
         <TableCell padding="checkbox">
           <Checkbox
@@ -175,28 +204,38 @@ const AdminPanel = () => {
         <TableCell>
           {editMode === row.id ? (
             <>
-              <Button onClick={() => handleSave(row.id)} variant="contained">
-                Save
+              <Button
+                className="save-btn"
+                onClick={() => handleSave(row.id)}
+                variant="contained"
+              >
+                <SaveTwoToneIcon />
               </Button>
               <Button
+                className="cancel-btn"
                 onClick={() => setEditMode("")}
                 variant="contained"
                 color="secondary"
               >
-                Cancel
+                <CancelTwoToneIcon />
               </Button>
             </>
           ) : (
             <>
-              <Button onClick={() => handleEdit(row.id)} variant="contained">
-                Edit
+              <Button
+                className="edit-btn"
+                onClick={() => handleEdit(row.id)}
+                variant="contained"
+              >
+                <EditIcon />
               </Button>
               <Button
+                className="delete-btn"
                 onClick={() => handleDelete(row.id)}
                 variant="contained"
                 color="error"
               >
-                Delete
+                <DeleteOutlineTwoToneIcon />
               </Button>
             </>
           )}
@@ -205,6 +244,49 @@ const AdminPanel = () => {
     ));
   };
 
+  const renderPagination = () => {
+    return (
+      <Box display="flex" justifyContent="flex-end" marginTop={2}>
+        <Button
+          onClick={() => handlePageChange(null, 0)}
+          variant="contained"
+          disabled={currentPage === 0}
+        >
+          First Page
+        </Button>
+        <Button
+          onClick={() => handlePageChange(null, currentPage - 1)}
+          variant="contained"
+          disabled={currentPage === 0}
+        >
+          Previous Page
+        </Button>
+        <Button
+          onClick={() => handlePageChange(null, currentPage + 1)}
+          variant="contained"
+          disabled={
+            currentPage === Math.ceil(filteredData.length / rowsPerPage) - 1
+          }
+        >
+          Next Page
+        </Button>
+        <Button
+          onClick={() =>
+            handlePageChange(
+              null,
+              Math.ceil(filteredData.length / rowsPerPage) - 1
+            )
+          }
+          variant="contained"
+          disabled={
+            currentPage === Math.ceil(filteredData.length / rowsPerPage) - 1
+          }
+        >
+          Last Page
+        </Button>
+      </Box>
+    );
+  };
   return (
     <div>
       <div>
@@ -213,10 +295,22 @@ const AdminPanel = () => {
           variant="outlined"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyPress={handleKeyPress} // Added onKeyPress event for Enter key
+          onKeyPress={handleKeyPress}
         />
-        <Button onClick={handleSearch} variant="contained" color="primary">
-          Search
+        <Button
+          className="search-icon"
+          onClick={handleSearch}
+          variant="contained"
+          color="primary"
+        >
+          <SearchTwoToneIcon />
+        </Button>
+        <Button
+          onClick={handleDeleteSelected}
+          variant="contained"
+          color="error"
+        >
+          <DeleteSweepTwoToneIcon />
         </Button>
       </div>
       <TableContainer component={Paper}>
@@ -238,6 +332,7 @@ const AdminPanel = () => {
           <TableBody>{renderTableRows()}</TableBody>
         </Table>
       </TableContainer>
+      {renderPagination()}
       <TablePagination
         rowsPerPageOptions={[10, 25, 50]}
         component="div"
