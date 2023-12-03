@@ -52,7 +52,9 @@ Current build of the app is deployed on this link using [here](https://lambent-c
 Looking for a positive response! Thank you for consideing my application 🚀
 
 Pranjal Goyal
+
 [Linkedin](https://www.linkedin.com/in/pranjal-goyal-42a7a55b/)
+
 www.pranjalgoyal.site
 
 
