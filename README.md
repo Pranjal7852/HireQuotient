@@ -49,10 +49,9 @@ Deployment 🚀
 To deploy the application, follow these steps:
 
 ```
-Clone the repository to your local machine.
-Navigate to the project directory in the terminal.
-Run npm install to install the project dependencies.
-Run npm start to start the development server.
+git clone https://github.com/Pranjal7852/HireQuotient
+npm install
+npm start
 Open your browser and go to http://localhost:3000 to view the application.
 ```
 Deployment Platforms 🌐
@@ -62,9 +61,8 @@ Silent Features 📥
 1. Dark mode functionality.
 2. React toastify for getting notification of variious action button.
 
-After completing deployment, submit your application here.
 
-Happy coding! 🚀
+Looking for a positive response! 🚀
 
 
 
