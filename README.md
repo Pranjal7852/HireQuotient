@@ -47,6 +47,7 @@ Current build of the app is deployed on this link using [here](https://lambent-c
 ## Silent Features 📥
 1. Dark mode functionality.
 2. React toastify for getting notification of variious action button.
+3. Mobile responsive 
 
 
 Looking for a positive response! Thank you for consideing my application 🚀
