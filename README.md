@@ -1,6 +1,10 @@
 # React Admin Panel Project web-app frontend development
 ## Project Overview 🚀
 This project is a React-based Admin Panel that allows users to manage a list of members. The primary features include filtering, editing, and deleting members with a user-friendly interface. The application also implements pagination and provides a smooth user experience. This project was part of the application process for the role of Frontend Internship (web-app frontend development) at HireQuotient.
+
+
+<img width="1677" alt="image" src="https://github.com/Pranjal7852/HireQuotient/assets/68412756/02c59796-c73a-4c32-9756-71f72fa74a4c">
+
 ## Deployment 🧑‍💻
 
 To deploy the application, follow these steps:
