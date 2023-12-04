@@ -3,33 +3,28 @@ import {
   Table,
   TableBody,
   TableCell,
-  TextField,
   TableContainer,
   TableHead,
   TableRow,
   Paper,
-  Checkbox,
-  Button,
-  Box,
-  Typography,
   TablePagination,
   createTheme,
   ThemeProvider,
+  Button,
+  Box,
+  CssBaseline,
 } from "@mui/material";
-
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import CssBaseline from "@mui/material/CssBaseline";
-import EditIcon from "@mui/icons-material/Edit";
+import DeleteSweepTwoToneIcon from "@mui/icons-material/DeleteSweepTwoTone";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
-import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
-import CancelTwoToneIcon from "@mui/icons-material/CancelTwoTone";
-import SaveTwoToneIcon from "@mui/icons-material/SaveTwoTone";
-import DeleteSweepTwoToneIcon from "@mui/icons-material/DeleteSweepTwoTone";
-import DeleteOutlineTwoToneIcon from "@mui/icons-material/DeleteOutlineTwoTone";
+import SearchComponent from "../../Atoms/SearchComponent/SearchComponent";
+import TableComponent from "../../Compounds/TableComponent/TableComponent";
+import PaginationComponent from "../../Atoms/PaginationComponent/PaginationComponent";
 import "./AdminPanel.css";
-const AdminPanel = () => {
+
+export const AdminPanel = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -187,149 +182,40 @@ const AdminPanel = () => {
     const currentRows = filteredData.slice(startIdx, endIdx);
 
     return currentRows.map((row) => (
-      <TableRow
+      <TableComponent
         key={row.id}
-        hover
-        role="checkbox"
-        selected={isSelected(row.id)}
-        aria-checked={isSelected(row.id)}
-        className={isSelected(row.id) ? "selected-row" : ""}
-      >
-        <TableCell padding="checkbox">
-          <Checkbox
-            checked={isSelected(row.id)}
-            onChange={() => handleCheckboxChange(row.id)}
-          />
-        </TableCell>
-        <TableCell>
-          {editMode === row.id ? (
-            <TextField
-              value={row.name}
-              onChange={(e) =>
-                setData((prevData) =>
-                  prevData.map((item) =>
-                    item.id === row.id
-                      ? { ...item, name: e.target.value }
-                      : item
-                  )
-                )
-              }
-              onKeyPress={(e) => e.key === "Enter" && handleSave(row.id)}
-            />
-          ) : (
-            row.name
-          )}
-        </TableCell>
-        <TableCell>{row.email}</TableCell>
-        <TableCell>{row.role}</TableCell>
-        <TableCell>
-          {editMode === row.id ? (
-            <Box display="flex" gap={1}>
-              <Button
-                className="save-btn"
-                onClick={() => handleSave(row.id)}
-                variant="contained"
-              >
-                <SaveTwoToneIcon />
-              </Button>
-
-              <Button
-                className="cancel-btn"
-                onClick={() => setEditMode("")}
-                variant="contained"
-                color="secondary"
-              >
-                <CancelTwoToneIcon />
-              </Button>
-            </Box>
-          ) : (
-            <Box display="flex" gap={1}>
-              <Button
-                className="edit-btn"
-                onClick={() => handleEdit(row.id)}
-                variant="contained"
-              >
-                <EditIcon />
-              </Button>
-              <Button
-                className="delete-btn"
-                onClick={() => handleDelete(row.id)}
-                variant="contained"
-                color="error"
-              >
-                <DeleteOutlineTwoToneIcon />
-              </Button>
-            </Box>
-          )}
-        </TableCell>
-      </TableRow>
+        row={row}
+        isSelected={isSelected}
+        handleCheckboxChange={handleCheckboxChange}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+        handleSave={handleSave}
+        editMode={editMode}
+        setData={setData}
+      />
     ));
   };
-
   const renderPagination = () => {
     return (
-      <Box display="flex" justifyContent="flex-end" marginTop={2} gap={1}>
-        <Button
-          onClick={() => handlePageChange(null, 0)}
-          variant="contained"
-          disabled={currentPage === 0}
-        >
-          First Page
-        </Button>
-        <Button
-          onClick={() => handlePageChange(null, currentPage - 1)}
-          variant="contained"
-          disabled={currentPage === 0}
-        >
-          Previous Page
-        </Button>
-        <Button
-          onClick={() => handlePageChange(null, currentPage + 1)}
-          variant="contained"
-          disabled={
-            currentPage === Math.ceil(filteredData.length / rowsPerPage) - 1
-          }
-        >
-          Next Page
-        </Button>
-        <Button
-          onClick={() =>
-            handlePageChange(
-              null,
-              Math.ceil(filteredData.length / rowsPerPage) - 1
-            )
-          }
-          variant="contained"
-          disabled={
-            currentPage === Math.ceil(filteredData.length / rowsPerPage) - 1
-          }
-        >
-          Last Page
-        </Button>
-      </Box>
+      <PaginationComponent
+        currentPage={currentPage}
+        handlePageChange={handlePageChange}
+        filteredData={filteredData}
+        rowsPerPage={rowsPerPage}
+      />
     );
   };
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div>
-        <div className="main">
-          <TextField
-            className="text-field"
-            label="Search"
-            variant="outlined"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyPress={handleKeyPress}
+        <div className="main" gap={1}>
+          <SearchComponent
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            handleKeyPress={handleKeyPress}
+            handleSearch={handleSearch}
           />
-          <Button
-            className="search-icon"
-            onClick={handleSearch}
-            variant="contained"
-            color="primary"
-          >
-            <SearchTwoToneIcon />
-          </Button>
           <Button
             onClick={handleDeleteSelected}
             variant="contained"
@@ -344,18 +230,7 @@ const AdminPanel = () => {
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
-              <TableRow>
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    checked={selectedRows.length === filteredData.length}
-                    onChange={() => handleCheckboxChange("all")}
-                  />
-                </TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Role</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
+              <TableRow>{/* ... (table header cells) */}</TableRow>
             </TableHead>
             <TableBody>{renderTableRows()}</TableBody>
           </Table>
@@ -375,5 +250,3 @@ const AdminPanel = () => {
     </ThemeProvider>
   );
 };
-
-export default AdminPanel;
